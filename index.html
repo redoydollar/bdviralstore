@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD Viral Store - Post Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Hind Siliguri',sans-serif;background:#05060a;color:#f1f5f9;min-height:100vh}
+        .container{max-width:900px;margin:0 auto;padding:20px}
+        h1{text-align:center;background:linear-gradient(to right,#cc0000,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px;font-size:26px}
+        .subtitle{text-align:center;color:#666;margin-bottom:25px;font-size:14px}
+        .panel{background:#111217;border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:20px}
+        label{display:block;margin-bottom:8px;font-weight:600;font-size:14px}
+        input[type="text"],textarea{width:100%;padding:12px;background:#05060a;border:1px solid #222;border-radius:8px;color:#f1f5f9;font-family:inherit;font-size:14px;margin-bottom:15px}
+        input:focus,textarea:focus{outline:none;border-color:#38bdf8}
+        .btn{background:linear-gradient(135deg,#cc0000,#ff1a1a);color:#fff;border:none;padding:12px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;display:inline-flex;align-items:center;gap:8px;transition:0.3s}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(204,0,0,0.4)}
+        .btn-blue{background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#000}
+        .btn-sm{padding:6px 14px;font-size:12px;border-radius:6px}
+        .section-divider{border-top:1px solid #222;margin:20px 0;padding-top:20px}
+        .section-header{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+        .section-header h4{font-size:16px;font-weight:600}
+        .output-area{width:100%;height:260px;background:#05060a;color:#0f0;border:1px solid #222;border-radius:8px;padding:15px;font-family:monospace;margin-top:15px;font-size:12px;resize:vertical}
+        .hidden{display:none!important}
+        .success-msg{background:rgba(76,175,80,0.1);border:1px solid #4caf50;color:#4caf50;padding:10px;border-radius:8px;text-align:center;margin-bottom:15px;display:none}
+        .btn-row{display:flex;gap:10px;margin-top:10px}
+        .btn-row .btn{flex:1;justify-content:center}
+        .ads-saved-badge{background:rgba(76,175,80,0.15);color:#4caf50;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;display:none}
+        .optional-tag{background:rgba(255,152,0,0.15);color:#ff9800;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.5px}
+        .inline-label{font-size:11px;color:#666;margin-bottom:4px;display:block;font-weight:500}
+        .dl-card{background:rgba(255,255,255,0.03);border:1px solid #222;border-radius:10px;padding:14px;margin-bottom:10px;transition:border-color 0.3s}
+        .dl-card:hover{border-color:rgba(204,0,0,0.4)}
+        .dl-card-top{display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center;margin-bottom:10px}
+        .dl-card-top input{margin-bottom:0;padding:10px;font-size:14px;font-weight:600}
+        .dl-card-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .dl-card-bottom .link-group label{font-size:11px;color:#666;margin-bottom:4px;display:block;font-weight:500}
+        .dl-card-bottom .link-group input{margin-bottom:0;padding:9px 10px;font-size:12px}
+        .dl-card-bottom .link-group label.ad-lbl{color:#f57c00}
+        .remove-btn{background:#ff5252;border:none;color:white;width:34px;height:34px;min-width:34px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:0.2s}
+        .remove-btn:hover{transform:scale(1.1);box-shadow:0 0 10px rgba(255,82,82,0.4)}
+        .helper-box{background:rgba(56,189,248,0.05);border:1px dashed rgba(56,189,248,0.3);border-radius:10px;padding:14px;margin-bottom:15px;font-size:13px;color:#999;line-height:1.7}
+        .preview-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,6,10,0.95);z-index:999999;overflow-y:auto;padding:20px}
+        .preview-overlay.active{display:block}
+        .preview-close{position:fixed;top:20px;right:20px;z-index:1000000;background:#cc0000;border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(204,0,0,0.5)}
+        .preview-frame{max-width:700px;margin:30px auto;background:#0a0b10;border-radius:16px;border:1px solid #222;overflow:hidden}
+        @media(max-width:600px){
+            .dl-card-bottom{grid-template-columns:1fr}
+            .btn-row{flex-direction:column}
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><i class="fas fa-store"></i> BD Viral Store — Post Generator</h1>
+    <p class="subtitle">সহজে ডাউনলোড পোস্ট তৈরি করুন — Part 1, Part 2, যত খুশি!</p>
+
+    <div class="panel">
+        <h3 style="margin-bottom:15px;color:#cc0000;font-size:18px"><i class="fas fa-pen"></i> ধাপ ১: পোস্টের তথ্য</h3>
+        <label>টাইটেল</label><input type="text" id="p_title" placeholder="পোস্টের টাইটেল লিখুন">
+        <label>বিবরণ (ঐচ্ছিক)</label><textarea id="p_desc" rows="3" placeholder="পোস্টের বিবরণ..."></textarea>
+        <label><i class="fas fa-image"></i> পোস্টার/কভার ইমেজ লিংক</label><input type="text" id="p_poster" placeholder="https://... (ইমেজ লিংক)">
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-bottom:15px;color:#cc0000;font-size:18px"><i class="fas fa-download"></i> ধাপ ২: ডাউনলোড সেটআপ</h3>
+        <div class="helper-box">
+            <i class="fas fa-info-circle" style="color:#38bdf8"></i> প্রতিটি রো = একটি ডাউনলোড বাটন (Part 1, Part 2, Full Video — যেকোনো নাম দিতে পারবেন)।
+            <b style="color:#ff9800">"নিজের অ্যাড লিংক"</b> ঘরে লিংক দিলে সেই রো-র বাটনে ওই অ্যাড চলবে, খালি রাখলে উপরের <b>অ্যাড ১</b> চলবে।
+        </div>
+        <div id="dlList"></div>
+        <button class="btn btn-blue btn-sm" onclick="addDlRow()" style="margin-top:5px"><i class="fas fa-plus"></i> নতুন ডাউনলোড রো যোগ করুন</button>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-bottom:15px;color:#cc0000;font-size:18px"><i class="fas fa-ad"></i> ধাপ ৩: ভেরিফিকেশন অ্যাড (Adsterra/যেকোনো নেটওয়ার্ক)</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+            <p style="color:#666;font-size:11px"><i class="fas fa-info-circle"></i> ডাউনলোড বাটনে চাপলে এই অ্যাডগুলো ভেরিফিকেশন ধাপে খুলবে (১০ সেকেন্ড করে)।</p>
+            <div style="display:flex;gap:8px;align-items:center">
+                <span class="ads-saved-badge" id="adsSavedBadge"><i class="fas fa-check-circle"></i> Saved</span>
+                <button class="btn btn-blue btn-sm" id="saveAdsBtn" onclick="saveAds()"><i class="fas fa-save"></i> Save Ads</button>
+            </div>
+        </div>
+        <label>অ্যাড লিংক ১ (আবশ্যক — ধাপ ১)</label><input type="text" id="ad1" placeholder="https://...">
+        <label>অ্যাড লিংক ২ <span class="optional-tag">OPTIONAL</span> (ধাপ ২ — খালি রাখলে ১ ধাপেই ডাউনলোড)</label><input type="text" id="ad2" placeholder="https://...">
+        <div class="section-divider"></div>
+        <button class="btn" onclick="generate()" style="width:100%;justify-content:center;font-size:16px;padding:15px">
+            <i class="fas fa-magic"></i> ব্লগার কোড জেনারেট করুন
+        </button>
+        <textarea class="output-area hidden" id="codeOutput" readonly></textarea>
+        <div class="btn-row">
+            <button class="btn btn-purple hidden" id="copyBtn" onclick="copyCode('codeOutput','copyBtn')"><i class="fas fa-copy"></i> কোড কপি করুন</button>
+            <button class="btn btn-orange hidden" id="previewBtn" onclick="previewCode()"><i class="fas fa-eye"></i> প্রিভিউ</button>
+        </div>
+    </div>
+</div>
+
+<div class="preview-overlay" id="previewOverlay">
+    <button class="preview-close" onclick="closePreview()"><i class="fas fa-times"></i></button>
+    <div class="preview-frame" id="previewFrame"></div>
+</div>
+
+<script>
+function esc(s){if(s===null||s===undefined)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+function addDlRow(n,link,ad){
+    var list=document.getElementById('dlList'),div=document.createElement('div');div.className='dl-card';
+    div.innerHTML='<div class="dl-card-top"><input type="text" class="row-name" placeholder="রো-এর নাম (যেমন: Part 1 / Full Video)" value="'+(n||'')+'"><button class="remove-btn" onclick="this.closest(\'.dl-card\').remove()"><i class="fas fa-times"></i></button></div><div class="dl-card-bottom"><div class="link-group"><label><i class="fas fa-download"></i> Download লিংক (টেলিগ্রাম/ডাইরেক্ট — যেকোনোটা)</label><input type="text" class="row-link" placeholder="https://t.me/... বা https://..." value="'+(link||'')+'"></div><div class="link-group"><label class="ad-lbl"><i class="fas fa-ad"></i> এই রো-এর নিজের অ্যাড লিংক <span class="optional-tag">OPTIONAL</span></label><input type="text" class="row-ad" placeholder="https://... (খালি = অ্যাড ১ চলবে)" value="'+(ad||'')+'"></div></div>';
+    list.appendChild(div);
+}
+addDlRow('Part 1','','');
+
+function saveAds(){var a1=document.getElementById('ad1').value.trim(),a2=document.getElementById('ad2').value.trim();localStorage.setItem('vst_ad1',a1);localStorage.setItem('vst_ad2',a2);var b=document.getElementById('saveAdsBtn'),bd=document.getElementById('adsSavedBadge');b.innerHTML='<i class="fas fa-check"></i> Saved!';bd.style.display='inline-block';setTimeout(function(){b.innerHTML='<i class="fas fa-save"></i> Save Ads'},2000)}
+function loadAds(){var s1=localStorage.getItem('vst_ad1'),s2=localStorage.getItem('vst_ad2');if(s1)document.getElementById('ad1').value=s1;if(s2)document.getElementById('ad2').value=s2;if(s1||s2)document.getElementById('adsSavedBadge').style.display='inline-block'}
+loadAds();
+
+function generate(){
+    var title=document.getElementById('p_title').value.trim();
+    var desc=document.getElementById('p_desc').value.trim()||'';
+    var poster=document.getElementById('p_poster').value.trim()||'https://via.placeholder.com/500x300/111217/cc0000?text=BD+Viral+Store';
+    var adLink1=document.getElementById('ad1').value.trim();
+    var adLink2=document.getElementById('ad2').value.trim();
+    if(!title){alert('টাইটেল দিন!');return}
+    if(!adLink1){alert('অ্যাড লিংক ১ দিন!');return}
+
+    var rows=[];
+    document.querySelectorAll('#dlList .dl-card').forEach(function(c){
+        var n=c.querySelector('.row-name').value.trim();
+        var l=c.querySelector('.row-link').value.trim();
+        var a=c.querySelector('.row-ad').value.trim();
+        if(n&&l)rows.push({name:n,link:l,ad:a});
+    });
+    if(!rows.length){alert('কমপক্ষে ১টি ডাউনলোড রো (নাম + লিংক) দিন!');return}
+
+    var isSingleAd=!adLink2;
+
+    /* ===== CSS ===== */
+    var fc='<style>\n';
+    fc+='.vst-post{font-family:\'Hind Siliguri\',sans-serif;color:#f1f5f9;max-width:100%;line-height:1.6}\n';
+    fc+='.vst-hero{background:linear-gradient(135deg,#111217,#0d0e14);border-radius:14px;padding:18px;border:1px solid #222;margin-bottom:18px}\n';
+    fc+='.vst-poster{border-radius:12px;overflow:hidden;border:1px solid #222;margin-bottom:14px}\n';
+    fc+='.vst-poster img{width:100%;display:block}\n';
+    fc+='.vst-title{font-size:21px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:8px}\n';
+    fc+='.vst-desc{font-size:14px;line-height:1.8;color:#999;border-left:3px solid #cc0000;padding-left:14px}\n';
+    fc+='.vst-section-title{font-size:18px;font-weight:700;color:#f1f5f9;margin:22px 0 12px;display:flex;align-items:center;gap:10px}\n';
+    fc+='.vst-section-title i{color:#cc0000}\n';
+    fc+='.vst-dl-wrap{border-radius:12px;overflow:hidden;border:1px solid #222}\n';
+    fc+='.vst-dl-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#111217;border-bottom:1px solid rgba(255,255,255,0.04);gap:12px;transition:background 0.2s}\n';
+    fc+='.vst-dl-row:last-child{border-bottom:none}\n';
+    fc+='.vst-dl-row:hover{background:rgba(255,255,255,0.03)}\n';
+    fc+='.vst-dl-name{font-size:15px;font-weight:700;color:#fff}\n';
+    fc+='.vst-btn-dl{background:linear-gradient(135deg,#cc0000,#e60000);color:#fff;border:none;padding:11px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:\'Hind Siliguri\',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:all 0.25s;box-shadow:0 3px 12px rgba(204,0,0,0.3);white-space:nowrap;-webkit-tap-highlight-color:transparent}\n';
+    fc+='.vst-btn-dl:hover{box-shadow:0 5px 20px rgba(204,0,0,0.5);transform:translateY(-1px)}\n';
+    fc+='.vst-btn-dl:active{transform:scale(0.97)}\n';
+    fc+='.vst-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:99999;padding:0}\n';
+    fc+='.vst-modal.active{display:flex}\n';
+    fc+='.vst-modal-box{background:#0e0f15;width:100%;max-width:420px;border:1px solid #1a1b23;overflow:hidden;animation:vstSlideUp 0.35s cubic-bezier(0.32,0.72,0,1)}\n';
+    fc+='@keyframes vstSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}\n';
+    fc+='.vst-modal-box{position:fixed;bottom:0;left:0;right:0;max-width:100%;border-radius:20px 20px 0 0;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}\n';
+    fc+='.vst-modal-handle{width:36px;height:4px;background:#333;border-radius:4px;margin:10px auto 0}\n';
+    fc+='.vst-modal-head{background:linear-gradient(135deg,#cc0000,#b30000);padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between}\n';
+    fc+='.vst-modal-head h3{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}\n';
+    fc+='.vst-modal-close{background:rgba(255,255,255,0.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}\n';
+    fc+='.vst-modal-body{padding:24px 20px 36px}\n';
+    if(!isSingleAd){fc+='.vst-steps{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px}\n.vst-step{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid #333;color:#555;transition:0.3s}\n.vst-step.active{border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,0.1)}\n.vst-step.done{border-color:#4caf50;color:#fff;background:#4caf50}\n.vst-line{width:32px;height:2px;background:#333;transition:0.3s}\n.vst-line.done{background:#4caf50}\n'}
+    fc+='.vst-step-normal{text-align:center}\n';
+    fc+='.vst-vmsg{margin-bottom:20px}\n.vst-vmsg h4{font-size:16px;color:#f1f5f9;margin-bottom:6px}\n.vst-vmsg p{font-size:13px;color:#888;line-height:1.6}\n';
+    fc+='.vst-ad-btn{display:flex;width:100%;padding:15px;background:linear-gradient(135deg,#ff9800,#f57c00);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Hind Siliguri\',sans-serif;text-decoration:none;text-align:center;justify-content:center;align-items:center;gap:10px;margin-bottom:16px;transition:0.3s;box-shadow:0 4px 16px rgba(255,152,0,0.3)}\n.vst-ad-btn:hover{box-shadow:0 6px 24px rgba(255,152,0,0.5);transform:translateY(-1px)}\n';
+    fc+='.vst-timer-bar{width:100%;height:6px;background:#1a1b23;border-radius:3px;overflow:hidden;margin-bottom:10px}\n.vst-timer-fill{height:100%;width:0%;background:linear-gradient(90deg,#cc0000,#ff9800);border-radius:3px;transition:width 0.1s linear}\n.vst-timer-txt{font-size:13px;color:#666;text-align:center}\n.vst-timer-txt span{color:#38bdf8;font-weight:700;font-size:15px}\n';
+    fc+='.vst-unlock-btn{display:none;width:100%;padding:15px;background:linear-gradient(135deg,#4caf50,#2e7d32);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Hind Siliguri\',sans-serif;margin-top:12px;transition:0.3s;box-shadow:0 4px 16px rgba(76,175,80,0.3)}\n.vst-unlock-btn:hover{box-shadow:0 6px 24px rgba(76,175,80,0.5)}\n';
+    fc+='.vst-warn-view{text-align:center;padding:8px 0}\n';
+    fc+='.vst-warn-icon{width:72px;height:72px;background:rgba(255,152,0,0.1);border:2px solid rgba(255,152,0,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:#ff9800;animation:vstWarnBreathe 2.5s ease-in-out infinite}\n';
+    fc+='@keyframes vstWarnBreathe{0%,100%{transform:scale(1);border-color:rgba(255,152,0,0.25)}50%{transform:scale(1.06);border-color:rgba(255,152,0,0.5)}}\n';
+    fc+='.vst-warn-view h4{font-size:18px;color:#ff9800;margin-bottom:14px;font-weight:700;line-height:1.4}\n';
+    fc+='.vst-warn-view .vst-warn-main{font-size:14px;color:#ddd;line-height:1.8;margin-bottom:8px}\n';
+    fc+='.vst-warn-view .vst-warn-main strong{color:#ff9800}\n';
+    fc+='.vst-warn-view .vst-warn-sub{font-size:13px;color:#777;line-height:1.8;margin-bottom:24px;padding:0 8px}\n';
+    fc+='.vst-retry-btn{display:inline-flex;align-items:center;gap:10px;padding:15px 40px;background:linear-gradient(135deg,#ff9800,#f57c00);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Hind Siliguri\',sans-serif;box-shadow:0 4px 20px rgba(255,152,0,0.35);transition:0.3s;-webkit-tap-highlight-color:transparent}\n';
+    fc+='.vst-retry-btn:hover{box-shadow:0 6px 28px rgba(255,152,0,0.5);transform:translateY(-2px)}\n';
+    fc+='.vst-retry-btn:active{transform:scale(0.97)}\n';
+    fc+='.vst-success{text-align:center;padding:16px 0}\n.vst-success-icon{width:64px;height:64px;background:linear-gradient(135deg,#4caf50,#2e7d32);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;color:#fff;box-shadow:0 4px 24px rgba(76,175,80,0.4)}\n';
+    fc+='.vst-final-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 36px;background:linear-gradient(135deg,#0088cc,#00aaff);color:#fff;text-decoration:none;border-radius:12px;font-size:15px;font-weight:700;box-shadow:0 4px 16px rgba(0,136,204,0.4);transition:0.3s}\n.vst-final-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,136,204,0.6)}\n';
+    fc+='@media(min-width:601px){\n.vst-modal{align-items:center;justify-content:center;padding:20px}\n.vst-modal-box{position:relative;bottom:auto;left:auto;right:auto;max-width:420px;max-height:90vh;border-radius:16px;border:1px solid #222}\n.vst-modal-handle{display:none}\n}\n';
+    fc+='@media(max-width:600px){\n.vst-dl-row{flex-direction:column;align-items:stretch;gap:10px;padding:14px 12px}\n.vst-btn-dl{width:100%;justify-content:center;padding:13px;font-size:15px}\n.vst-modal-head{padding:14px 16px 12px}\n.vst-modal-body{padding:20px 16px 32px}\n.vst-ad-btn{padding:16px;font-size:16px;border-radius:14px}\n.vst-retry-btn{padding:16px 36px;font-size:16px;border-radius:14px}\n}\n';
+    fc+='</style>\n\n';
+
+    /* ===== HTML ===== */
+    fc+='<div class="vst-post">\n\n';
+    fc+='<div class="vst-hero">\n<div class="vst-poster"><img src="'+esc(poster)+'" alt="'+esc(title)+'" loading="lazy"></div>\n<h1 class="vst-title">'+esc(title)+'</h1>\n';
+    if(desc) fc+='<p class="vst-desc">'+esc(desc)+'</p>\n';
+    fc+='</div>\n\n';
+    fc+='<div class="vst-section-title"><i class="fas fa-download"></i> Download Links</div>\n<div class="vst-dl-wrap">\n';
+    for(var ri=0;ri<rows.length;ri++){
+        var r=rows[ri];
+        var adAttr=r.ad?' data-ad="'+esc(r.ad)+'"':'';
+        fc+='<div class="vst-dl-row"><div class="vst-dl-info"><div class="vst-dl-name">'+esc(r.name)+'</div></div><button class="vst-btn-dl vst-trigger" data-link="'+esc(r.link)+'"'+adAttr+'><i class="fas fa-download"></i> Download</button></div>\n';
+    }
+    fc+='</div>\n\n';
+
+    /* ===== মোডাল ===== */
+    fc+='<div class="vst-modal" id="vstModal">\n<div class="vst-modal-box">\n<div class="vst-modal-handle"></div>\n';
+    fc+='<div class="vst-modal-head"><h3><i class="fas fa-shield-alt"></i> ভেরিফিকেশন</h3><button class="vst-modal-close" id="vstCloseBtn"><i class="fas fa-times"></i></button></div>\n';
+    fc+='<div class="vst-modal-body">\n';
+    if(!isSingleAd) fc+='<div class="vst-steps"><div class="vst-step active" id="vstS1">1</div><div class="vst-line" id="vstL1"></div><div class="vst-step" id="vstS2">2</div><div class="vst-line" id="vstL2"></div><div class="vst-step" id="vstS3"><i class="fas fa-check" style="font-size:11px"></i></div></div>\n';
+    /* ধাপ ১ */
+    fc+='<div id="vstStep1">\n<div class="vst-step-normal" id="vstNormal1">\n';
+    fc+='<div class="vst-vmsg"><h4>ধাপ ১: অ্যাড ভিজিট করুন</h4><p>নিচের বাটনে ক্লিক করুন এবং অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন</p></div>\n';
+    fc+='<a href="'+esc(adLink1)+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb1"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
+    fc+='<div class="vst-timer-bar"><div class="vst-timer-fill" id="vstTf1"></div></div>\n';
+    fc+='<p class="vst-timer-txt" id="vstTt1">অপেক্ষা করুন... <span id="vstTc1">10</span> সেকেন্ড</p>\n';
+    fc+='<button class="vst-unlock-btn" id="vstUb1"><i class="fas fa-arrow-right"></i> পরবর্তী ধাপ</button>\n';
+    fc+='</div>\n<div class="vst-warn-view" id="vstWarnView1" style="display:none">\n';
+    fc+='<div class="vst-warn-icon"><i class="fas fa-redo-alt"></i></div>\n<h4>দুঃখিত! পুনরায় চেষ্টা করুন</h4>\n';
+    fc+='<p class="vst-warn-main">আপনি অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকেননি</p>\n';
+    fc+='<p class="vst-warn-sub">কোনো সমস্যা নেই! আবার নিচের বাটনে ক্লিক করুন — অ্যাড পেজে ১০ সেকেন্ড থাকলেই পরবর্তী ধাপে যেতে পারবেন।</p>\n';
+    fc+='<button class="vst-retry-btn" id="vstRetry1"><i class="fas fa-redo-alt"></i> আবার চেষ্টা করুন</button>\n</div>\n</div>\n';
+    /* ধাপ ২ */
+    if(!isSingleAd){
+        fc+='<div id="vstStep2" style="display:none">\n<div class="vst-step-normal" id="vstNormal2">\n';
+        fc+='<div class="vst-vmsg"><h4>ধাপ ২: চূড়ান্ত ভেরিফিকেশন</h4><p>আরেকটি অ্যাড ভিজিট করুন এবং কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন</p></div>\n';
+        fc+='<a href="'+esc(adLink2)+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb2"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
+        fc+='<div class="vst-timer-bar"><div class="vst-timer-fill" id="vstTf2"></div></div>\n';
+        fc+='<p class="vst-timer-txt" id="vstTt2">অপেক্ষা করুন... <span id="vstTc2">10</span> সেকেন্ড</p>\n';
+        fc+='<button class="vst-unlock-btn" id="vstUb2"><i class="fas fa-unlock"></i> আনলক করুন</button>\n';
+        fc+='</div>\n<div class="vst-warn-view" id="vstWarnView2" style="display:none">\n';
+        fc+='<div class="vst-warn-icon"><i class="fas fa-redo-alt"></i></div>\n<h4>দুঃখিত! পুনরায় চেষ্টা করুন</h4>\n';
+        fc+='<p class="vst-warn-main">আপনি অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকেননি।</p>\n';
+        fc+='<p class="vst-warn-sub">এটি শেষ ধাপ — এইবার সফল হলে আপনার ডাউনলোড রেডি হয়ে যাবে!</p>\n';
+        fc+='<button class="vst-retry-btn" id="vstRetry2"><i class="fas fa-redo-alt"></i> আবার চেষ্টা করুন</button>\n</div>\n</div>\n';
+    }
+    /* সাকসেস */
+    fc+='<div id="vstStep3" style="display:none"><div class="vst-success"><div class="vst-success-icon"><i class="fas fa-check"></i></div><h3 style="color:#fff;font-size:17px;margin-bottom:6px">রেডি!</h3><p style="font-size:13px;color:#888;margin-bottom:18px">ভেরিফিকেশন সম্পন্ন ✅</p><a href="#" class="vst-final-btn" id="vstFdl" target="_blank" rel="noopener"><i class="fas fa-download"></i> Download Now</a></div></div>\n';
+    fc+='</div></div></div>\n\n';
+    fc+='</div>\n';
+
+    /* ===== JS ===== */
+    fc+='<script>\n';
+    fc+='var vstLink="",vstTimer=null,vstAdTime=0,vstSingleAd='+(isSingleAd?'true':'false')+',vstRowAd="",vstDefAd1="'+esc(adLink1)+'",vstDefAd2="'+esc(adLink2)+'";\n';
+    /* ইভেন্ট */
+    fc+='document.addEventListener("click",function(e){\n';
+    fc+='var btn=e.target.closest(".vst-trigger");if(btn){e.preventDefault();vstStart(btn.getAttribute("data-link"),btn.getAttribute("data-ad"));return;}\n';
+    fc+='if(e.target.closest("#vstAb1")){vstTick(1);return;}\n';
+    fc+='if(e.target.closest("#vstUb1")){vstGo2();return;}\n';
+    fc+='if(e.target.closest("#vstRetry1")){vstRetry(1);return;}\n';
+    if(!isSingleAd){
+        fc+='if(e.target.closest("#vstAb2")){vstTick(2);return;}\n';
+        fc+='if(e.target.closest("#vstUb2")){vstGo3();return;}\n';
+        fc+='if(e.target.closest("#vstRetry2")){vstRetry(2);return;}\n';
+    }
+    fc+='if(e.target.closest("#vstCloseBtn")){vstClose();return;}\n';
+    fc+='});\n';
+    fc+='document.getElementById("vstModal").addEventListener("click",function(e){if(e.target===this){var w=window.innerWidth;if(w>600)vstClose();}});\n\n';
+    /* ওপেন/ক্লোজ */
+    fc+='function vstStart(link,rowAd){vstLink=link;vstRowAd=rowAd||"";vstReset();var b1=document.getElementById("vstAb1");if(b1)b1.href=(vstRowAd&&vstRowAd!=="#")?vstRowAd:vstDefAd1;document.getElementById("vstModal").classList.add("active");document.body.style.overflow="hidden"}\n';
+    fc+='function vstClose(){if(vstTimer)clearInterval(vstTimer);window.removeEventListener("focus",vstFocusH);document.getElementById("vstModal").classList.remove("active");document.body.style.overflow=""}\n';
+    /* রিসেট */
+    fc+='function vstReset(){\nif(vstTimer)clearInterval(vstTimer);window.removeEventListener("focus",vstFocusH);vstAdTime=0;\n';
+    fc+='document.getElementById("vstStep1").style.display="block";document.getElementById("vstStep3").style.display="none";\n';
+    fc+='document.getElementById("vstNormal1").style.display="block";document.getElementById("vstWarnView1").style.display="none";\n';
+    fc+='document.getElementById("vstTf1").style.width="0%";document.getElementById("vstTc1").textContent="10";document.getElementById("vstTt1").style.display="block";document.getElementById("vstUb1").style.display="none";\n';
+    if(!isSingleAd){
+        fc+='document.getElementById("vstStep2").style.display="none";\n';
+        fc+='document.getElementById("vstNormal2").style.display="block";document.getElementById("vstWarnView2").style.display="none";\n';
+        fc+='document.getElementById("vstTf2").style.width="0%";document.getElementById("vstTc2").textContent="10";document.getElementById("vstTt2").style.display="block";document.getElementById("vstUb2").style.display="none";\n';
+        fc+='document.getElementById("vstS1").className="vst-step active";document.getElementById("vstS2").className="vst-step";document.getElementById("vstS3").className="vst-step";document.getElementById("vstL1").className="vst-line";document.getElementById("vstL2").className="vst-line";\n';
+    }
+    fc+='}\n\n';
+    /* টিক */
+    fc+='function vstTick(step){\n';
+    fc+='document.getElementById("vstNormal"+step).style.display="block";document.getElementById("vstWarnView"+step).style.display="none";\n';
+    fc+='var tf=document.getElementById("vstTf"+step),tc=document.getElementById("vstTc"+step),tt=document.getElementById("vstTt"+step),ub=document.getElementById("vstUb"+step);\n';
+    fc+='tf.style.width="0%";tc.textContent="10";tt.style.display="block";ub.style.display="none";vstAdTime=0;\n';
+    fc+='if(vstTimer)clearInterval(vstTimer);\n';
+    fc+='vstTimer=setInterval(function(){vstAdTime++;var t=parseInt(tc.textContent);t--;if(t<0)t=0;tc.textContent=t;tf.style.width=((10-t)/10*100)+"%";if(t<=0){clearInterval(vstTimer);tt.style.display="none";ub.style.display="block";}},1000);\n';
+    fc+='window.addEventListener("focus",vstFocusH);\n';
+    fc+='}\n\n';
+    /* ফোকাস — ১০ সেকেন্ড না হলে ওয়ার্নিং */
+    fc+='function vstFocusH(){\n';
+    fc+='if(vstAdTime<10){\n';
+    fc+='var step=document.getElementById("vstStep1").style.display!=="none"?1:2;\n';
+    fc+='if(vstTimer)clearInterval(vstTimer);\n';
+    fc+='window.removeEventListener("focus",vstFocusH);\n';
+    fc+='document.getElementById("vstNormal"+step).style.display="none";\n';
+    fc+='document.getElementById("vstWarnView"+step).style.display="block";\n';
+    fc+='}\n';
+    fc+='}\n\n';
+    /* রিট্রি */
+    fc+='function vstRetry(step){\n';
+    fc+='document.getElementById("vstWarnView"+step).style.display="none";\n';
+    fc+='document.getElementById("vstNormal"+step).style.display="block";\n';
+    fc+='document.getElementById("vstTf"+step).style.width="0%";\n';
+    fc+='document.getElementById("vstTc"+step).textContent="10";\n';
+    fc+='document.getElementById("vstTt"+step).style.display="block";\n';
+    fc+='document.getElementById("vstUb"+step).style.display="none";\n';
+    fc+='vstAdTime=0;\n';
+    fc+='}\n\n';
+    /* ধাপ */
+    fc+='function vstGo2(){\n';
+    if(isSingleAd){fc+='vstShowFinal();\n'}
+    else{
+        fc+='if(vstAdTime<10){document.getElementById("vstNormal1").style.display="none";document.getElementById("vstWarnView1").style.display="block";return;}\n';
+        fc+='window.removeEventListener("focus",vstFocusH);\n';
+        fc+='document.getElementById("vstStep1").style.display="none";document.getElementById("vstStep2").style.display="block";\n';
+        fc+='document.getElementById("vstS1").className="vst-step done";document.getElementById("vstL1").className="vst-line done";document.getElementById("vstS2").className="vst-step active";\n';
+    }
+    fc+='}\n';
+    if(!isSingleAd){
+        fc+='function vstGo3(){\n';
+        fc+='if(vstAdTime<10){document.getElementById("vstNormal2").style.display="none";document.getElementById("vstWarnView2").style.display="block";return;}\n';
+        fc+='vstShowFinal();\n';
+        fc+='}\n';
+    }
+    /* ফাইনাল */
+    fc+='function vstShowFinal(){\nwindow.removeEventListener("focus",vstFocusH);\n';
+    if(!isSingleAd) fc+='document.getElementById("vstS1").className="vst-step done";document.getElementById("vstS2").className="vst-step done";document.getElementById("vstL2").className="vst-line done";document.getElementById("vstS3").className="vst-step done";\n';
+    fc+='document.getElementById("vstStep1").style.display="none";\n';
+    if(!isSingleAd) fc+='document.getElementById("vstStep2").style.display="none";\n';
+    fc+='document.getElementById("vstStep3").style.display="block";\n';
+    fc+='var fb=document.getElementById("vstFdl");fb.href=vstLink;\n';
+    fc+='}\n';
+    fc+='<\/script>\n';
+
+    var out=document.getElementById('codeOutput');
+    out.value=fc;out.classList.remove('hidden');
+    document.getElementById('copyBtn').classList.remove('hidden');
+    document.getElementById('previewBtn').classList.remove('hidden');
+    out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function previewCode(){
+    var code=document.getElementById('codeOutput').value;
+    var frame=document.getElementById('previewFrame');frame.innerHTML=code;
+    var scripts=frame.querySelectorAll('script');
+    scripts.forEach(function(old){if(old.getAttribute('type'))return;var ns=document.createElement('script');ns.textContent=old.textContent;old.parentNode.replaceChild(ns,old)});
+    document.getElementById('previewOverlay').classList.add('active');document.body.style.overflow='hidden';
+}
+function closePreview(){document.getElementById('previewOverlay').classList.remove('active');document.getElementById('previewFrame').innerHTML='';document.body.style.overflow=''}
+
+function copyCode(id,btnId){
+    var el=document.getElementById(id);el.select();document.execCommand('copy');
+    var btn=document.getElementById(btnId);var orig=btn.innerHTML;
+    btn.innerHTML='<i class="fas fa-check"></i> কপি হয়েছে!';btn.style.background='linear-gradient(135deg,#4caf50,#2e7d32)';
+    setTimeout(function(){btn.innerHTML=orig;btn.style.background=''},2000);
+}
+</script>
+</body>
+</html>
