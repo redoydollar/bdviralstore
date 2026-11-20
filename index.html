@@ -31,6 +31,11 @@
         .ads-saved-badge{background:rgba(76,175,80,0.15);color:#4caf50;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;display:none}
         .optional-tag{background:rgba(255,152,0,0.15);color:#ff9800;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.5px}
         .inline-label{font-size:11px;color:#666;margin-bottom:4px;display:block;font-weight:500}
+        .pool-row{display:flex;gap:10px;margin-bottom:10px;align-items:center}
+        .pool-row input{flex:1;margin:0;padding:10px;font-size:13px}
+        .pool-row .pool-num{width:26px;min-width:26px;height:26px;background:rgba(255,82,82,0.15);color:#ff5252;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+        .pool-row .remove-btn{width:30px;height:30px;min-width:30px;font-size:11px}
+        .pool-add-hint{font-size:11px;color:#666;margin:4px 0 12px}
         .dl-card{background:rgba(255,255,255,0.03);border:1px solid #222;border-radius:10px;padding:14px;margin-bottom:10px;transition:border-color 0.3s}
         .dl-card:hover{border-color:rgba(204,0,0,0.4)}
         .dl-card-top{display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center;margin-bottom:10px}
@@ -69,7 +74,7 @@
         <h3 style="margin-bottom:15px;color:#cc0000;font-size:18px"><i class="fas fa-download"></i> ধাপ ২: ডাউনলোড সেটআপ</h3>
         <div class="helper-box">
             <i class="fas fa-info-circle" style="color:#38bdf8"></i> প্রতিটি রো = একটি ডাউনলোড বাটন (Part 1, Part 2, Full Video — যেকোনো নাম দিতে পারবেন)।
-            <b style="color:#ff9800">"নিজের অ্যাড লিংক"</b> ঘরে লিংক দিলে সেই রো-র বাটনে ওই অ্যাড চলবে, খালি রাখলে উপরের <b>অ্যাড ১</b> চলবে।
+            <b style="color:#ff9800">"নিজের অ্যাড লিংক"</b> ঘরে লিংক দিলে সেই রো-র বাটনে ওই অ্যাড চলবে, খালি রাখলে পুল থেকে র‍্যান্ডম অ্যাড চলবে।
         </div>
         <div id="dlList"></div>
         <button class="btn btn-blue btn-sm" onclick="addDlRow()" style="margin-top:5px"><i class="fas fa-plus"></i> নতুন ডাউনলোড রো যোগ করুন</button>
@@ -78,14 +83,15 @@
     <div class="panel">
         <h3 style="margin-bottom:15px;color:#cc0000;font-size:18px"><i class="fas fa-ad"></i> ধাপ ৩: ভেরিফিকেশন অ্যাড (Adsterra/যেকোনো নেটওয়ার্ক)</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-            <p style="color:#666;font-size:11px"><i class="fas fa-info-circle"></i> ডাউনলোড বাটনে চাপলে এই অ্যাডগুলো ভেরিফিকেশন ধাপে খুলবে (১০ সেকেন্ড করে)।</p>
+            <p style="color:#666;font-size:11px"><i class="fas fa-info-circle"></i> ডাউনলোড বাটনে চাপলে পুল থেকে <b style="color:#ff5252">র‍্যান্ডম অ্যাড</b> খুলবে (১০ সেকেন্ড করে) — সেইম লিংক পরপর দুইবার যাবে না। এই জেনারেটর পুরোপুরি অ্যাডাল্ট (18+) কনটেন্টের জন্য।</p>
             <div style="display:flex;gap:8px;align-items:center">
                 <span class="ads-saved-badge" id="adsSavedBadge"><i class="fas fa-check-circle"></i> Saved</span>
                 <button class="btn btn-blue btn-sm" id="saveAdsBtn" onclick="saveAds()"><i class="fas fa-save"></i> Save Ads</button>
             </div>
         </div>
-        <label>অ্যাড লিংক ১ (আবশ্যক — ধাপ ১)</label><input type="text" id="ad1" placeholder="https://...">
-        <label>অ্যাড লিংক ২ <span class="optional-tag">OPTIONAL</span> (ধাপ ২ — খালি রাখলে ১ ধাপেই ডাউনলোড)</label><input type="text" id="ad2" placeholder="https://...">
+        <div id="adPoolList"></div>
+        <p class="pool-add-hint"><i class="fas fa-circle-info"></i> ইচ্ছেমতো যত খুশি অ্যাড বসান — "নতুন যোগ করুন" চাপলেই নাম্বার দিয়ে নতুন ঘর আসবে (৬, ৭, ৮...)। ✕ চাপলে ঘরটা মুছে যাবে। Save Ads চাপলে ব্রাউজারে মনে রাখবে।</p>
+        <button class="btn btn-blue btn-sm" onclick="addPoolAd()"><i class="fas fa-plus"></i> নতুন অ্যাড লিংক যোগ করুন</button>
         <div class="section-divider"></div>
         <button class="btn" onclick="generate()" style="width:100%;justify-content:center;font-size:16px;padding:15px">
             <i class="fas fa-magic"></i> ব্লগার কোড জেনারেট করুন
@@ -105,26 +111,34 @@
 
 <script>
 function esc(s){if(s===null||s===undefined)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function safeJson(o){return JSON.stringify(o).replace(/<\//g,'<\\/')}
 
 function addDlRow(n,link,ad){
     var list=document.getElementById('dlList'),div=document.createElement('div');div.className='dl-card';
-    div.innerHTML='<div class="dl-card-top"><input type="text" class="row-name" placeholder="রো-এর নাম (যেমন: Part 1 / Full Video)" value="'+(n||'')+'"><button class="remove-btn" onclick="this.closest(\'.dl-card\').remove()"><i class="fas fa-times"></i></button></div><div class="dl-card-bottom"><div class="link-group"><label><i class="fas fa-download"></i> Download লিংক (টেলিগ্রাম/ডাইরেক্ট — যেকোনোটা)</label><input type="text" class="row-link" placeholder="https://t.me/... বা https://..." value="'+(link||'')+'"></div><div class="link-group"><label class="ad-lbl"><i class="fas fa-ad"></i> এই রো-এর নিজের অ্যাড লিংক <span class="optional-tag">OPTIONAL</span></label><input type="text" class="row-ad" placeholder="https://... (খালি = অ্যাড ১ চলবে)" value="'+(ad||'')+'"></div></div>';
+    div.innerHTML='<div class="dl-card-top"><input type="text" class="row-name" placeholder="রো-এর নাম (যেমন: Part 1 / Full Video)" value="'+(n||'')+'"><button class="remove-btn" onclick="this.closest(\'.dl-card\').remove()"><i class="fas fa-times"></i></button></div><div class="dl-card-bottom"><div class="link-group"><label><i class="fas fa-download"></i> Download লিংক (টেলিগ্রাম/ডাইরেক্ট — যেকোনোটা)</label><input type="text" class="row-link" placeholder="https://t.me/... বা https://..." value="'+(link||'')+'"></div><div class="link-group"><label class="ad-lbl"><i class="fas fa-ad"></i> এই রো-এর নিজের অ্যাড লিংক <span class="optional-tag">OPTIONAL</span></label><input type="text" class="row-ad" placeholder="https://... (খালি = র‍্যান্ডম অ্যাড চলবে)" value="'+(ad||'')+'"></div></div>';
     list.appendChild(div);
 }
 addDlRow('Part 1','','');
 
-function saveAds(){var a1=document.getElementById('ad1').value.trim(),a2=document.getElementById('ad2').value.trim();localStorage.setItem('vst_ad1',a1);localStorage.setItem('vst_ad2',a2);var b=document.getElementById('saveAdsBtn'),bd=document.getElementById('adsSavedBadge');b.innerHTML='<i class="fas fa-check"></i> Saved!';bd.style.display='inline-block';setTimeout(function(){b.innerHTML='<i class="fas fa-save"></i> Save Ads'},2000)}
-function loadAds(){var s1=localStorage.getItem('vst_ad1'),s2=localStorage.getItem('vst_ad2');if(s1)document.getElementById('ad1').value=s1;if(s2)document.getElementById('ad2').value=s2;if(s1||s2)document.getElementById('adsSavedBadge').style.display='inline-block'}
+/* 🎲 র‍্যান্ডম অ্যাড পুল (অ্যাডাল্ট 18+ — এই সাইটের জন্য শুধু অ্যাডাল্ট অ্যাড) — ডিফল্ট ৫টা লিংক বসানো; "নতুন যোগ করুন" দিয়ে ইচ্ছেমতো যত খুশি অ্যাড বসানো যায় */
+var AD_POOL_DEFAULT=["https://auctionr.org/4/1b6df569ebc094e3e8e592d2fd017b4f","https://auctionr.org/4/ae2d07d4c0488d06e6aec709d40d437f","https://auctionr.org/4/ef5b10414fe8fdd3f602e74bcdd4225c","https://auctionr.org/4/9a420739bd309e36f6535c4bcad2d3c9","https://auctionr.org/4/b51d4b4d19155b12b384cdd6f2b31daa"];
+function addPoolAd(v){var list=document.getElementById('adPoolList'),div=document.createElement('div');div.className='pool-row';div.innerHTML='<span class="pool-num"></span><input type="text" class="pool-link" placeholder="https://..." value="'+(v||'')+'"><button class="remove-btn" onclick="rmPoolRow(this)" title="মুছে ফেলুন"><i class="fas fa-times"></i></button>';list.appendChild(div);renumPool()}
+function rmPoolRow(btn){btn.closest('.pool-row').remove();renumPool()}
+function renumPool(){document.querySelectorAll('#adPoolList .pool-num').forEach(function(s,i){s.textContent=i+1})}
+function readAdPool(){var out=[];document.querySelectorAll('#adPoolList .pool-link').forEach(function(inp){var v=inp.value.trim();if(v)out.push(v)});return out}
+function saveAds(){localStorage.setItem('vst_adPool',JSON.stringify(readAdPool()));var b=document.getElementById('saveAdsBtn'),bd=document.getElementById('adsSavedBadge');b.innerHTML='<i class="fas fa-check"></i> Saved!';bd.style.display='inline-block';setTimeout(function(){b.innerHTML='<i class="fas fa-save"></i> Save Ads'},2000)}
+function loadAds(){var s=localStorage.getItem('vst_adPool'),a=null;try{if(s!==null)a=JSON.parse(s)}catch(e){}if(!Array.isArray(a))a=AD_POOL_DEFAULT.slice();document.getElementById('adPoolList').innerHTML='';(a.length?a:['']).forEach(function(v){addPoolAd(v)});if(s!==null)document.getElementById('adsSavedBadge').style.display='inline-block'}
 loadAds();
 
 function generate(){
     var title=document.getElementById('p_title').value.trim();
     var desc=document.getElementById('p_desc').value.trim()||'';
     var poster=document.getElementById('p_poster').value.trim()||'https://via.placeholder.com/500x300/111217/cc0000?text=BD+Viral+Store';
-    var adLink1=document.getElementById('ad1').value.trim();
-    var adLink2=document.getElementById('ad2').value.trim();
+    /* 🎲 র‍্যান্ডম অ্যাড পুল (অ্যাডাল্ট): প্রতিবার ক্লিকে পুল থেকে র‍্যান্ডম লিংক — সেইম লিংক পরপর দুইবার যাবে না */
+    var adPool=readAdPool();
     if(!title){alert('টাইটেল দিন!');return}
-    if(!adLink1){alert('অ্যাড লিংক ১ দিন!');return}
+    if(!adPool.length){alert('কমপক্ষে ১টা অ্যাড লিংক দিন (ধাপ ৩)!');return}
+    var isSingleAd=adPool.length<2;
 
     var rows=[];
     document.querySelectorAll('#dlList .dl-card').forEach(function(c){
@@ -134,8 +148,6 @@ function generate(){
         if(n&&l)rows.push({name:n,link:l,ad:a});
     });
     if(!rows.length){alert('কমপক্ষে ১টি ডাউনলোড রো (নাম + লিংক) দিন!');return}
-
-    var isSingleAd=!adLink2;
 
     /* ===== CSS ===== */
     var fc='<style>\n';
@@ -208,7 +220,7 @@ function generate(){
     /* ধাপ ১ */
     fc+='<div id="vstStep1">\n<div class="vst-step-normal" id="vstNormal1">\n';
     fc+='<div class="vst-vmsg"><h4>ধাপ ১: অ্যাড ভিজিট করুন</h4><p>নিচের বাটনে ক্লিক করুন এবং অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন</p></div>\n';
-    fc+='<a href="'+esc(adLink1)+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb1"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
+    fc+='<a href="'+esc(adPool[0]||'#')+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb1"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
     fc+='<div class="vst-timer-bar"><div class="vst-timer-fill" id="vstTf1"></div></div>\n';
     fc+='<p class="vst-timer-txt" id="vstTt1">অপেক্ষা করুন... <span id="vstTc1">10</span> সেকেন্ড</p>\n';
     fc+='<button class="vst-unlock-btn" id="vstUb1"><i class="fas fa-arrow-right"></i> পরবর্তী ধাপ</button>\n';
@@ -221,7 +233,7 @@ function generate(){
     if(!isSingleAd){
         fc+='<div id="vstStep2" style="display:none">\n<div class="vst-step-normal" id="vstNormal2">\n';
         fc+='<div class="vst-vmsg"><h4>ধাপ ২: চূড়ান্ত ভেরিফিকেশন</h4><p>আরেকটি অ্যাড ভিজিট করুন এবং কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন</p></div>\n';
-        fc+='<a href="'+esc(adLink2)+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb2"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
+        fc+='<a href="'+esc(adPool[1]||adPool[0]||'#')+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb2"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
         fc+='<div class="vst-timer-bar"><div class="vst-timer-fill" id="vstTf2"></div></div>\n';
         fc+='<p class="vst-timer-txt" id="vstTt2">অপেক্ষা করুন... <span id="vstTc2">10</span> সেকেন্ড</p>\n';
         fc+='<button class="vst-unlock-btn" id="vstUb2"><i class="fas fa-unlock"></i> আনলক করুন</button>\n';
@@ -238,7 +250,10 @@ function generate(){
 
     /* ===== JS ===== */
     fc+='<script>\n';
-    fc+='var vstLink="",vstTimer=null,vstAdTime=0,vstSingleAd='+(isSingleAd?'true':'false')+',vstRowAd="",vstDefAd1="'+esc(adLink1)+'",vstDefAd2="'+esc(adLink2)+'";\n';
+    fc+='var vstLink="",vstTimer=null,vstAdTime=0,vstSingleAd='+(isSingleAd?'true':'false')+',vstRowAd="";\n';
+    /* 🎲 র‍্যান্ডম অ্যাড পিক: প্রতিবার ক্লিকে পুল থেকে র‍্যান্ডম লিংক — সেইম লিংক পরপর দুইবার যাবে না */
+    fc+='var vstAds='+safeJson(adPool)+';var vstLastAd="";\n';
+    fc+='function vstPickAd(){var p=vstAds.filter(function(u){return u!==vstLastAd});if(!p.length)p=vstAds;if(!p.length)return "";var u=p[Math.floor(Math.random()*p.length)];vstLastAd=u;return u}\n';
     /* ইভেন্ট */
     fc+='document.addEventListener("click",function(e){\n';
     fc+='var btn=e.target.closest(".vst-trigger");if(btn){e.preventDefault();vstStart(btn.getAttribute("data-link"),btn.getAttribute("data-ad"));return;}\n';
@@ -254,7 +269,8 @@ function generate(){
     fc+='});\n';
     fc+='document.getElementById("vstModal").addEventListener("click",function(e){if(e.target===this){var w=window.innerWidth;if(w>600)vstClose();}});\n\n';
     /* ওপেন/ক্লোজ */
-    fc+='function vstStart(link,rowAd){vstLink=link;vstRowAd=rowAd||"";vstReset();var b1=document.getElementById("vstAb1");if(b1)b1.href=(vstRowAd&&vstRowAd!=="#")?vstRowAd:vstDefAd1;document.getElementById("vstModal").classList.add("active");document.body.style.overflow="hidden"}\n';
+    /* 🎲 প্রতিবার ক্লিকে পুল থেকে র‍্যান্ডম অ্যাড (ধাপ ১ ও ধাপ ২-তে আলাদা); রো-এর নিজের অ্যাড (data-ad) থাকলে সেটাই চলবে */
+    fc+='function vstStart(link,rowAd){vstLink=link;vstRowAd=rowAd||"";vstReset();var b1=document.getElementById("vstAb1");if(b1){var u1=(vstRowAd&&vstRowAd!=="#")?vstRowAd:vstPickAd();if(u1){b1.href=u1;vstLastAd=u1;}}var b2=document.getElementById("vstAb2");if(b2){var u2=vstPickAd();if(u2){b2.href=u2;vstLastAd=u2;}}document.getElementById("vstModal").classList.add("active");document.body.style.overflow="hidden"}\n';
     fc+='function vstClose(){if(vstTimer)clearInterval(vstTimer);window.removeEventListener("focus",vstFocusH);document.getElementById("vstModal").classList.remove("active");document.body.style.overflow=""}\n';
     /* রিসেট */
     fc+='function vstReset(){\nif(vstTimer)clearInterval(vstTimer);window.removeEventListener("focus",vstFocusH);vstAdTime=0;\n';
