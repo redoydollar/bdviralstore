@@ -14,7 +14,7 @@
         .subtitle{text-align:center;color:#666;margin-bottom:25px;font-size:14px}
         .panel{background:#111217;border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:20px}
         label{display:block;margin-bottom:8px;font-weight:600;font-size:14px}
-        input[type="text"],textarea{width:100%;padding:12px;background:#05060a;border:1px solid #222;border-radius:8px;color:#f1f5f9;font-family:inherit;font-size:14px;margin-bottom:15px}
+        input[type="text"],select,textarea{width:100%;padding:12px;background:#05060a;border:1px solid #222;border-radius:8px;color:#f1f5f9;font-family:inherit;font-size:14px;margin-bottom:15px}
         input:focus,textarea:focus{outline:none;border-color:#38bdf8}
         .btn{background:linear-gradient(135deg,#cc0000,#ff1a1a);color:#fff;border:none;padding:12px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;display:inline-flex;align-items:center;gap:8px;transition:0.3s}
         .btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(204,0,0,0.4)}
@@ -93,6 +93,14 @@
         <p class="pool-add-hint"><i class="fas fa-circle-info"></i> ইচ্ছেমতো যত খুশি অ্যাড বসান — "নতুন যোগ করুন" চাপলেই নাম্বার দিয়ে নতুন ঘর আসবে (৬, ৭, ৮...)। ✕ চাপলে ঘরটা মুছে যাবে। Save Ads চাপলে ব্রাউজারে মনে রাখবে।</p>
         <button class="btn btn-blue btn-sm" onclick="addPoolAd()"><i class="fas fa-plus"></i> নতুন অ্যাড লিংক যোগ করুন</button>
         <div class="section-divider"></div>
+        <div class="section-header"><h4 style="color:#38bdf8"><i class="fas fa-shield-alt"></i> ভেরিফিকেশন মোড (অ্যাড গেট)</h4></div>
+        <label><i class="fas fa-layer-group"></i> ডাউনলোডের আগে কত ধাপ অ্যাড দেখাবে?</label>
+        <select id="adStepsSelect">
+            <option value="1" selected>নরমাল — ১ ধাপ (সুপারিশকৃত: ইউজার ১টা অ্যাড দেখেই ফাইল পাবে)</option>
+            <option value="2">২ ধাপ — ধাপ ১ + ধাপ ২ (বেশি অ্যাড ইনকাম)</option>
+        </select>
+        <p style="color:#ff9800;font-size:12px;margin-top:-8px;margin-bottom:15px">💡 নরমাল (১ ধাপ) মোডে ইউজার ১টা অ্যাড ভিজিট করে ১০ সেকেন্ড থাকলেই সরাসরি ডাউনলোড পাবে — ইউজারের জন্য সহজ। ২ ধাপ সিলেক্ট করলে আগের মতো দুইটা অ্যাড স্টেপ যাবে।</p>
+        <div class="section-divider"></div>
         <button class="btn" onclick="generate()" style="width:100%;justify-content:center;font-size:16px;padding:15px">
             <i class="fas fa-magic"></i> ব্লগার কোড জেনারেট করুন
         </button>
@@ -139,6 +147,9 @@ function generate(){
     if(!title){alert('টাইটেল দিন!');return}
     if(!adPool.length){alert('কমপক্ষে ১টা অ্যাড লিংক দিন (ধাপ ৩)!');return}
     var isSingleAd=adPool.length<2;
+    /* ভেরিফিকেশন মোড: নরমাল = ১ ধাপ (ডিফল্ট), ২ ধাপ = অপশনাল (উপরের সিলেক্ট থেকে) */
+    var adStepsSel=parseInt((document.getElementById('adStepsSelect')||{value:'1'}).value,10);
+    var isTwoStep=!isSingleAd&&adStepsSel===2;
 
     var rows=[];
     document.querySelectorAll('#dlList .dl-card').forEach(function(c){
@@ -216,21 +227,22 @@ function generate(){
     fc+='<div class="vst-modal" id="vstModal">\n<div class="vst-modal-box">\n<div class="vst-modal-handle"></div>\n';
     fc+='<div class="vst-modal-head"><h3><i class="fas fa-shield-alt"></i> ভেরিফিকেশন</h3><button class="vst-modal-close" id="vstCloseBtn"><i class="fas fa-times"></i></button></div>\n';
     fc+='<div class="vst-modal-body">\n';
-    if(!isSingleAd) fc+='<div class="vst-steps"><div class="vst-step active" id="vstS1">1</div><div class="vst-line" id="vstL1"></div><div class="vst-step" id="vstS2">2</div><div class="vst-line" id="vstL2"></div><div class="vst-step" id="vstS3"><i class="fas fa-check" style="font-size:11px"></i></div></div>\n';
+    if(isTwoStep) fc+='<div class="vst-steps"><div class="vst-step active" id="vstS1">1</div><div class="vst-line" id="vstL1"></div><div class="vst-step" id="vstS2">2</div><div class="vst-line" id="vstL2"></div><div class="vst-step" id="vstS3"><i class="fas fa-check" style="font-size:11px"></i></div></div>\n';
+    else if(!isSingleAd) fc+='<div class="vst-steps"><div class="vst-step active" id="vstS1">1</div><div class="vst-line" id="vstL1"></div><div class="vst-step" id="vstS3"><i class="fas fa-check" style="font-size:11px"></i></div></div>\n';
     /* ধাপ ১ */
     fc+='<div id="vstStep1">\n<div class="vst-step-normal" id="vstNormal1">\n';
-    fc+='<div class="vst-vmsg"><h4>ধাপ ১: অ্যাড ভিজিট করুন</h4><p>নিচের বাটনে ক্লিক করুন এবং অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন</p></div>\n';
+    fc+='<div class="vst-vmsg"><h4>ধাপ ১: অ্যাড ভিজিট করুন</h4><p>'+(isTwoStep?'নিচের বাটনে ক্লিক করুন এবং অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন':'নিচের বাটনে ক্লিক করুন এবং অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন — এরপরই ডাউনলোড আনলক হবে!')+'</p></div>\n';
     fc+='<a href="'+esc(adPool[0]||'#')+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb1"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
     fc+='<div class="vst-timer-bar"><div class="vst-timer-fill" id="vstTf1"></div></div>\n';
     fc+='<p class="vst-timer-txt" id="vstTt1">অপেক্ষা করুন... <span id="vstTc1">10</span> সেকেন্ড</p>\n';
-    fc+='<button class="vst-unlock-btn" id="vstUb1"><i class="fas fa-arrow-right"></i> পরবর্তী ধাপ</button>\n';
+    fc+='<button class="vst-unlock-btn" id="vstUb1"><i class="fas fa-'+(isTwoStep?'arrow-right':'unlock')+'"></i> '+(isTwoStep?'পরবর্তী ধাপ':'আনলক করুন')+'</button>\n';
     fc+='</div>\n<div class="vst-warn-view" id="vstWarnView1" style="display:none">\n';
     fc+='<div class="vst-warn-icon"><i class="fas fa-redo-alt"></i></div>\n<h4>দুঃখিত! পুনরায় চেষ্টা করুন</h4>\n';
     fc+='<p class="vst-warn-main">আপনি অ্যাড পেজে কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকেননি</p>\n';
-    fc+='<p class="vst-warn-sub">কোনো সমস্যা নেই! আবার নিচের বাটনে ক্লিক করুন — অ্যাড পেজে ১০ সেকেন্ড থাকলেই পরবর্তী ধাপে যেতে পারবেন।</p>\n';
+    fc+='<p class="vst-warn-sub">কোনো সমস্যা নেই! আবার নিচের বাটনে ক্লিক করুন — অ্যাড পেজে ১০ সেকেন্ড থাকলেই '+(isTwoStep?'পরবর্তী ধাপে যেতে পারবেন।':'ডাউনলোড আনলক হয়ে যাবে।')+'</p>\n';
     fc+='<button class="vst-retry-btn" id="vstRetry1"><i class="fas fa-redo-alt"></i> আবার চেষ্টা করুন</button>\n</div>\n</div>\n';
-    /* ধাপ ২ */
-    if(!isSingleAd){
+    /* ধাপ ২ — শুধু ২-ধাপ মোডে */
+    if(isTwoStep){
         fc+='<div id="vstStep2" style="display:none">\n<div class="vst-step-normal" id="vstNormal2">\n';
         fc+='<div class="vst-vmsg"><h4>ধাপ ২: চূড়ান্ত ভেরিফিকেশন</h4><p>আরেকটি অ্যাড ভিজিট করুন এবং কমপক্ষে <strong>১০ সেকেন্ড</strong> থাকুন</p></div>\n';
         fc+='<a href="'+esc(adPool[1]||adPool[0]||'#')+'" target="_blank" rel="noopener" class="vst-ad-btn" id="vstAb2"><i class="fas fa-external-link-alt"></i> অ্যাড ভিজিট করুন</a>\n';
@@ -258,9 +270,9 @@ function generate(){
     fc+='document.addEventListener("click",function(e){\n';
     fc+='var btn=e.target.closest(".vst-trigger");if(btn){e.preventDefault();vstStart(btn.getAttribute("data-link"),btn.getAttribute("data-ad"));return;}\n';
     fc+='if(e.target.closest("#vstAb1")){vstTick(1);return;}\n';
-    fc+='if(e.target.closest("#vstUb1")){vstGo2();return;}\n';
+    fc+='if(e.target.closest("#vstUb1")){'+(isTwoStep?'vstGo2();':'vstGo3(1);')+'return;}\n';
     fc+='if(e.target.closest("#vstRetry1")){vstRetry(1);return;}\n';
-    if(!isSingleAd){
+    if(isTwoStep){
         fc+='if(e.target.closest("#vstAb2")){vstTick(2);return;}\n';
         fc+='if(e.target.closest("#vstUb2")){vstGo3();return;}\n';
         fc+='if(e.target.closest("#vstRetry2")){vstRetry(2);return;}\n';
@@ -277,11 +289,15 @@ function generate(){
     fc+='document.getElementById("vstStep1").style.display="block";document.getElementById("vstStep3").style.display="none";\n';
     fc+='document.getElementById("vstNormal1").style.display="block";document.getElementById("vstWarnView1").style.display="none";\n';
     fc+='document.getElementById("vstTf1").style.width="0%";document.getElementById("vstTc1").textContent="10";document.getElementById("vstTt1").style.display="block";document.getElementById("vstUb1").style.display="none";\n';
-    if(!isSingleAd){
+    if(isTwoStep){
         fc+='document.getElementById("vstStep2").style.display="none";\n';
         fc+='document.getElementById("vstNormal2").style.display="block";document.getElementById("vstWarnView2").style.display="none";\n';
         fc+='document.getElementById("vstTf2").style.width="0%";document.getElementById("vstTc2").textContent="10";document.getElementById("vstTt2").style.display="block";document.getElementById("vstUb2").style.display="none";\n';
         fc+='document.getElementById("vstS1").className="vst-step active";document.getElementById("vstS2").className="vst-step";document.getElementById("vstS3").className="vst-step";document.getElementById("vstL1").className="vst-line";document.getElementById("vstL2").className="vst-line";\n';
+    }
+    else if(!isSingleAd){
+        /* নরমাল (১ ধাপ) মোডের স্টেপার রিসেট: ① অ্যাকটিভ, ✓ ডিফল্ট */
+        fc+='document.getElementById("vstS1").className="vst-step active";document.getElementById("vstS3").className="vst-step";document.getElementById("vstL1").className="vst-line";\n';
     }
     fc+='}\n\n';
     /* টিক */
@@ -313,10 +329,10 @@ function generate(){
     fc+='document.getElementById("vstUb"+step).style.display="none";\n';
     fc+='vstAdTime=0;\n';
     fc+='}\n\n';
-    /* ধাপ */
+    /* ধাপ ১ → ধাপ ২ (শুধু ২-ধাপ মোডে ব্যবহার হয়; নরমাল মোডে vstUb1 সরাসরি vstGo3(1)-এ যায়) */
     fc+='function vstGo2(){\n';
     if(isSingleAd){fc+='vstShowFinal();\n'}
-    else{
+    else if(isTwoStep){
         fc+='if(vstAdTime<10){document.getElementById("vstNormal1").style.display="none";document.getElementById("vstWarnView1").style.display="block";return;}\n';
         fc+='window.removeEventListener("focus",vstFocusH);\n';
         fc+='document.getElementById("vstStep1").style.display="none";document.getElementById("vstStep2").style.display="block";\n';
@@ -324,16 +340,18 @@ function generate(){
     }
     fc+='}\n';
     if(!isSingleAd){
-        fc+='function vstGo3(){\n';
-        fc+='if(vstAdTime<10){document.getElementById("vstNormal2").style.display="none";document.getElementById("vstWarnView2").style.display="block";return;}\n';
+        /* স্টেপ-প্যারাম: ২-ধাপ মোডে ২ (vstUb2), নরমাল ১-ধাপ মোডে ১ (vstUb1) — সময় কম হলে ওই ধাপেরই ওয়ার্নিং দেখাবে */
+        fc+='function vstGo3(step){step=step||2;\n';
+        fc+='if(vstAdTime<10){document.getElementById("vstNormal"+step).style.display="none";document.getElementById("vstWarnView"+step).style.display="block";return;}\n';
         fc+='vstShowFinal();\n';
         fc+='}\n';
     }
     /* ফাইনাল */
     fc+='function vstShowFinal(){\nwindow.removeEventListener("focus",vstFocusH);\n';
-    if(!isSingleAd) fc+='document.getElementById("vstS1").className="vst-step done";document.getElementById("vstS2").className="vst-step done";document.getElementById("vstL2").className="vst-line done";document.getElementById("vstS3").className="vst-step done";\n';
+    if(isTwoStep) fc+='document.getElementById("vstS1").className="vst-step done";document.getElementById("vstS2").className="vst-step done";document.getElementById("vstL2").className="vst-line done";document.getElementById("vstS3").className="vst-step done";\n';
+    else if(!isSingleAd) fc+='document.getElementById("vstS1").className="vst-step done";document.getElementById("vstL1").className="vst-line done";document.getElementById("vstS3").className="vst-step done";\n';
     fc+='document.getElementById("vstStep1").style.display="none";\n';
-    if(!isSingleAd) fc+='document.getElementById("vstStep2").style.display="none";\n';
+    if(isTwoStep) fc+='document.getElementById("vstStep2").style.display="none";\n';
     fc+='document.getElementById("vstStep3").style.display="block";\n';
     fc+='var fb=document.getElementById("vstFdl");fb.href=vstLink;\n';
     fc+='}\n';
